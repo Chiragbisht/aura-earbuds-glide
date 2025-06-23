@@ -1,196 +1,144 @@
 
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
-import { OrbitControls, Environment, Float, useGLTF } from '@react-three/drei';
+import { OrbitControls, Environment, Float, Text3D, Center } from '@react-three/drei';
 import { useRef, useEffect, useState } from 'react';
 import { Headphones, Volume, Wifi } from 'lucide-react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-// 3D AirPods Pro Component using GLTF model
+// 3D AirPods Pro Component
 const AirPodsPro = () => {
   const meshRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
   // Auto-rotation
   useFrame((state, delta) => {
-    if (meshRef.current && !hovered) {
-      meshRef.current.rotation.y += delta * 0.5; // Slow rotation
+    if (meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.2; // Slow rotation
     }
   });
 
-  // Fallback realistic AirPods made with better geometry
   return (
     <Float speed={1.5} rotationIntensity={0.3} floatIntensity={0.2}>
-      <group ref={meshRef} scale={2}>
-        {/* AirPods Case */}
-        <group position={[0, -1, 0]}>
+      <group ref={meshRef}>
+        {/* Left AirPod */}
+        <group position={[-0.8, 0, 0]}>
+          {/* Main Earbud Body - more rounded and realistic */}
           <mesh
             onPointerEnter={() => setHovered(true)}
             onPointerLeave={() => setHovered(false)}
           >
-            <boxGeometry args={[2.2, 1, 2.8]} />
+            <sphereGeometry args={[0.5, 16, 16]} />
             <meshPhysicalMaterial
-              color={hovered ? "#f0f0f0" : "#ffffff"}
-              metalness={0.1}
-              roughness={0.1}
-              clearcoat={1}
-              clearcoatRoughness={0.1}
-            />
-          </mesh>
-          
-          {/* Case rounded corners */}
-          <mesh position={[0, 0.5, 0]}>
-            <cylinderGeometry args={[1.1, 1.1, 1, 32]} />
-            <meshPhysicalMaterial
-              color={hovered ? "#f0f0f0" : "#ffffff"}
-              metalness={0.1}
-              roughness={0.1}
-              clearcoat={1}
-              clearcoatRoughness={0.1}
-            />
-          </mesh>
-        </group>
-
-        {/* Left AirPod */}
-        <group position={[-0.6, 0.8, 0]} rotation={[0, 0, -0.2]}>
-          {/* Earbud head - more anatomical shape */}
-          <mesh>
-            <sphereGeometry args={[0.35, 16, 16]} />
-            <meshPhysicalMaterial
-              color="#ffffff"
+              color={hovered ? "#f8f8f8" : "#ffffff"}
               metalness={0.05}
               roughness={0.1}
-              clearcoat={0.8}
-              clearcoatRoughness={0.2}
+              transmission={0.02}
+              thickness={0.1}
+              emissive={hovered ? "#3b82f6" : "#000000"}
+              emissiveIntensity={hovered ? 0.1 : 0}
             />
           </mesh>
           
-          {/* Ear tip */}
-          <mesh position={[0.25, 0, 0]}>
-            <sphereGeometry args={[0.25, 12, 12]} />
+          {/* Stem - longer and more realistic */}
+          <mesh position={[0, -0.8, 0]}>
+            <cylinderGeometry args={[0.12, 0.15, 1.2, 16]} />
             <meshPhysicalMaterial
-              color="#f8f8f8"
-              metalness={0}
-              roughness={0.3}
-              transmission={0.1}
-            />
-          </mesh>
-          
-          {/* Stem */}
-          <mesh position={[0, -0.8, 0]} rotation={[0, 0, 0.1]}>
-            <cylinderGeometry args={[0.12, 0.18, 1.5, 16]} />
-            <meshPhysicalMaterial
-              color="#ffffff"
+              color={hovered ? "#f8f8f8" : "#ffffff"}
               metalness={0.05}
               roughness={0.1}
-              clearcoat={0.8}
-              clearcoatRoughness={0.2}
+              emissive={hovered ? "#3b82f6" : "#000000"}
+              emissiveIntensity={hovered ? 0.1 : 0}
             />
           </mesh>
-
-          {/* Stem tip sensor area */}
-          <mesh position={[0, -1.4, 0]}>
-            <sphereGeometry args={[0.15, 12, 12]} />
-            <meshPhysicalMaterial
-              color="#f0f0f0"
-              metalness={0.1}
-              roughness={0.2}
-            />
-          </mesh>
-
-          {/* Speaker grille */}
-          <mesh position={[0.3, 0.1, 0]} rotation={[0, Math.PI/2, 0]}>
-            <cylinderGeometry args={[0.15, 0.15, 0.02, 16]} />
+          
+          {/* Speaker Grille */}
+          <mesh position={[0.4, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.18, 0.18, 0.03, 16]} />
             <meshPhysicalMaterial
               color="#1a1a1a"
+              metalness={0.9}
+              roughness={0.1}
+            />
+          </mesh>
+          
+          {/* Microphone holes on stem */}
+          <mesh position={[0.08, -0.5, 0.08]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.05, 8]} />
+            <meshPhysicalMaterial
+              color="#2a2a2a"
               metalness={0.8}
               roughness={0.2}
             />
           </mesh>
-
-          {/* Microphone holes */}
-          {[0.08, -0.08].map((offset, i) => (
-            <mesh key={i} position={[offset, -0.6, 0.08]}>
-              <cylinderGeometry args={[0.015, 0.015, 0.03, 8]} />
-              <meshPhysicalMaterial
-                color="#2a2a2a"
-                metalness={0.6}
-                roughness={0.3}
-              />
-            </mesh>
-          ))}
+          
+          <mesh position={[-0.08, -0.5, 0.08]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.05, 8]} />
+            <meshPhysicalMaterial
+              color="#2a2a2a"
+              metalness={0.8}
+              roughness={0.2}
+            />
+          </mesh>
         </group>
         
         {/* Right AirPod - mirrored */}
-        <group position={[0.6, 0.8, 0]} rotation={[0, 0, 0.2]}>
-          <mesh>
-            <sphereGeometry args={[0.35, 16, 16]} />
+        <group position={[0.8, 0, 0]} rotation={[0, Math.PI, 0]}>
+          <mesh
+            onPointerEnter={() => setHovered(true)}
+            onPointerLeave={() => setHovered(false)}
+          >
+            <sphereGeometry args={[0.5, 16, 16]} />
             <meshPhysicalMaterial
-              color="#ffffff"
+              color={hovered ? "#f8f8f8" : "#ffffff"}
               metalness={0.05}
               roughness={0.1}
-              clearcoat={0.8}
-              clearcoatRoughness={0.2}
+              transmission={0.02}
+              thickness={0.1}
+              emissive={hovered ? "#3b82f6" : "#000000"}
+              emissiveIntensity={hovered ? 0.1 : 0}
             />
           </mesh>
           
-          <mesh position={[-0.25, 0, 0]}>
-            <sphereGeometry args={[0.25, 12, 12]} />
+          <mesh position={[0, -0.8, 0]}>
+            <cylinderGeometry args={[0.12, 0.15, 1.2, 16]} />
             <meshPhysicalMaterial
-              color="#f8f8f8"
-              metalness={0}
-              roughness={0.3}
-              transmission={0.1}
+              color={hovered ? "#f8f8f8" : "#ffffff"}
+              metalness={0.05}
+              roughness={0.1}
+              emissive={hovered ? "#3b82f6" : "#000000"}
+              emissiveIntensity={hovered ? 0.1 : 0}
             />
           </mesh>
           
-          <mesh position={[0, -0.8, 0]} rotation={[0, 0, -0.1]}>
-            <cylinderGeometry args={[0.12, 0.18, 1.5, 16]} />
-            <meshPhysicalMaterial
-              color="#ffffff"
-              metalness={0.05}
-              roughness={0.1}
-              clearcoat={0.8}
-              clearcoatRoughness={0.2}
-            />
-          </mesh>
-
-          <mesh position={[0, -1.4, 0]}>
-            <sphereGeometry args={[0.15, 12, 12]} />
-            <meshPhysicalMaterial
-              color="#f0f0f0"
-              metalness={0.1}
-              roughness={0.2}
-            />
-          </mesh>
-
-          <mesh position={[-0.3, 0.1, 0]} rotation={[0, Math.PI/2, 0]}>
-            <cylinderGeometry args={[0.15, 0.15, 0.02, 16]} />
+          <mesh position={[0.4, 0.1, 0]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.18, 0.18, 0.03, 16]} />
             <meshPhysicalMaterial
               color="#1a1a1a"
+              metalness={0.9}
+              roughness={0.1}
+            />
+          </mesh>
+          
+          <mesh position={[0.08, -0.5, 0.08]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.05, 8]} />
+            <meshPhysicalMaterial
+              color="#2a2a2a"
               metalness={0.8}
               roughness={0.2}
             />
           </mesh>
-
-          {[0.08, -0.08].map((offset, i) => (
-            <mesh key={i} position={[offset, -0.6, 0.08]}>
-              <cylinderGeometry args={[0.015, 0.015, 0.03, 8]} />
-              <meshPhysicalMaterial
-                color="#2a2a2a"
-                metalness={0.6}
-                roughness={0.3}
-              />
-            </mesh>
-          ))}
+          
+          <mesh position={[-0.08, -0.5, 0.08]} rotation={[0, 0, Math.PI / 2]}>
+            <cylinderGeometry args={[0.02, 0.02, 0.05, 8]} />
+            <meshPhysicalMaterial
+              color="#2a2a2a"
+              metalness={0.8}
+              roughness={0.2}
+            />
+          </mesh>
         </group>
-
-        {/* Apple logo on case */}
-        <mesh position={[0, -0.4, 1.41]} rotation={[0, 0, 0]}>
-          <planeGeometry args={[0.3, 0.35]} />
-          <meshBasicMaterial color="#666666" transparent opacity={0.8} />
-        </mesh>
       </group>
     </Float>
   );
@@ -285,33 +233,30 @@ const Index = () => {
             {/* 3D Model */}
             <div className="h-96 lg:h-[500px] relative">
               <Canvas
-                camera={{ position: [0, 0, 8], fov: 45 }}
+                camera={{ position: [0, 0, 6], fov: 50 }}
                 className="rounded-2xl"
               >
                 <Suspense fallback={null}>
                   <Environment preset="studio" />
-                  <ambientLight intensity={0.6} />
-                  <directionalLight position={[10, 10, 5]} intensity={1} />
-                  <directionalLight position={[-10, -10, -5]} intensity={0.5} />
-                  <pointLight position={[0, 5, 5]} color="#3b82f6" intensity={0.8} />
-                  <pointLight position={[0, -5, -5]} color="#8b5cf6" intensity={0.6} />
+                  <ambientLight intensity={0.4} />
+                  <directionalLight position={[10, 10, 5]} intensity={1.2} />
+                  <pointLight position={[-10, -10, -10]} color="#3b82f6" intensity={0.4} />
+                  <pointLight position={[10, 10, 10]} color="#8b5cf6" intensity={0.3} />
                   
                   <AirPodsPro />
                   
                   <OrbitControls
                     enablePan={false}
-                    enableZoom={true}
-                    maxPolarAngle={Math.PI / 1.2}
-                    minPolarAngle={Math.PI / 4}
+                    enableZoom={false}
+                    maxPolarAngle={Math.PI / 1.5}
+                    minPolarAngle={Math.PI / 3}
                     autoRotate={false}
-                    minDistance={5}
-                    maxDistance={12}
                   />
                 </Suspense>
               </Canvas>
               
               <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-400 text-sm">
-                Drag to rotate • Scroll to zoom
+                Drag to rotate
               </div>
             </div>
           </div>
