@@ -5,10 +5,11 @@ import { OrbitControls, Environment, Float, Text3D, Center } from '@react-three/
 import { useRef, useEffect, useState } from 'react';
 import { Headphones, Volume, Wifi } from 'lucide-react';
 import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
 // 3D AirPods Pro Component
 const AirPodsPro = () => {
-  const meshRef = useRef();
+  const meshRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
 
   // Auto-rotation
